@@ -1,0 +1,105 @@
+CREATE DATABASE  rsms;
+USE `rsms`;
+
+CREATE TABLE `customer` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(45) NOT NULL,
+  `contact` varchar(12) NOT NULL,
+  `address` varchar(200) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1 COMMENT='store customer details';
+
+CREATE TABLE `dealer` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(45) NOT NULL,
+  `contact` varchar(10) NOT NULL,
+  `address` varchar(200) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 COMMENT='to store dealer details';
+
+CREATE TABLE `login` (
+  `login_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `login_username` varchar(45) NOT NULL,
+  `login_password` varchar(45) NOT NULL,
+  `login_role` varchar(45) NOT NULL DEFAULT 'user',
+  PRIMARY KEY (`login_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+
+CREATE TABLE `product` (
+  `code` int(10) unsigned NOT NULL,
+  `name` varchar(45) NOT NULL,
+  `category` varchar(10) NOT NULL,
+  `quantity` int(11) NOT NULL DEFAULT '0',
+  `mrp` double unsigned NOT NULL,
+  `sale_price` double unsigned NOT NULL,
+  `discount` double unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`code`,`mrp`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='To store product details';
+
+CREATE TABLE `purchase` (
+  `Bill_no` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `dealer_id` int(10) unsigned NOT NULL,
+  `total` double NOT NULL,
+  `date` varchar(12) NOT NULL,
+  PRIMARY KEY (`Bill_no`),
+  KEY `dealer_id` (`dealer_id`),
+  CONSTRAINT `dealer_id` FOREIGN KEY (`dealer_id`) REFERENCES `dealer` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5002 DEFAULT CHARSET=latin1 COMMENT='to store overall purchase bill';
+
+CREATE TABLE `purchase_details` (
+  `bill_no` int(10) unsigned NOT NULL,
+  `code` int(10) unsigned NOT NULL,
+  `quantity` int(10) unsigned NOT NULL,
+  `price` double NOT NULL,
+  `total` double NOT NULL,
+  `expiry_dt` varchar(12) DEFAULT NULL,
+  KEY `FK_purchase_details_bill_no` (`bill_no`),
+  KEY `FK_purchase_details_code` (`code`),
+  CONSTRAINT `FK_purchase_details_bill_no` FOREIGN KEY (`bill_no`) REFERENCES `purchase` (`Bill_no`),
+  CONSTRAINT `FK_purchase_details_code` FOREIGN KEY (`code`) REFERENCES `product` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='details of each purchase';
+
+CREATE TABLE `purchase_return` (
+  `bill_no` int(10) unsigned NOT NULL,
+  `code` int(10) unsigned NOT NULL,
+  `quantity` int(10) unsigned NOT NULL,
+  `date` varchar(12) DEFAULT NULL,
+  KEY `FK_purchase_return_bill_no` (`bill_no`),
+  KEY `FK_purchase_return_code` (`code`),
+  CONSTRAINT `FK_purchase_return_bill_no` FOREIGN KEY (`bill_no`) REFERENCES `purchase` (`Bill_no`),
+  CONSTRAINT `FK_purchase_return_code` FOREIGN KEY (`code`) REFERENCES `product` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `sale` (
+  `bill_no` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `customer_id` int(10) unsigned NOT NULL,
+  `total` double NOT NULL,
+  `date` varchar(12) DEFAULT NULL,
+  PRIMARY KEY (`bill_no`),
+  KEY `FK_sale_customer_id` (`customer_id`),
+  CONSTRAINT `FK_sale_customer_id` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=104 DEFAULT CHARSET=latin1 COMMENT='store sale bill';
+
+CREATE TABLE `sale_details` (
+  `bill_no` int(10) unsigned NOT NULL,
+  `code` int(10) unsigned NOT NULL,
+  `quantity` int(10) unsigned NOT NULL,
+  `price` double NOT NULL,
+  `total` double NOT NULL,
+  `expiry_dt` varchar(12) DEFAULT NULL,
+  KEY `FK_sale_details_bill_no` (`bill_no`),
+  KEY `FK_sale_details_code` (`code`),
+  CONSTRAINT `FK_sale_details_bill_no` FOREIGN KEY (`bill_no`) REFERENCES `sale` (`bill_no`),
+  CONSTRAINT `FK_sale_details_code` FOREIGN KEY (`code`) REFERENCES `product` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='store sale bill details';
+
+CREATE TABLE `sale_return` (
+  `bill_no` int(10) unsigned NOT NULL,
+  `code` int(10) unsigned NOT NULL,
+  `quantity` int(10) unsigned NOT NULL,
+  `date` varchar(12) NOT NULL,
+  KEY `FK_sale_return_bill_no` (`bill_no`),
+  KEY `FK_sale_return_code` (`code`),
+  CONSTRAINT `FK_sale_return_bill_no` FOREIGN KEY (`bill_no`) REFERENCES `sale` (`bill_no`),
+  CONSTRAINT `FK_sale_return_code` FOREIGN KEY (`code`) REFERENCES `product` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='store sale return details';
